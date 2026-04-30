@@ -1,0 +1,58 @@
+services:
+  testapp-caddy:
+    image: caddy:2.4.5-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+      - ./Caddyfile:/etc/caddy/Caddyfile
+  testapp-api:
+    build:
+      context: ..
+      dockerfile: docker/testapp.dockerfile
+    restart: unless-stopped
+    depends_on:
+      testapp-db:
+        condition: service_healthy
+    secrets:
+      - neo4j_username
+      - neo4j_password
+    networks:
+      - testapp-network
+  testapp-db:
+    image: neo4j:5.26-community
+    restart: unless-stopped
+    secrets:
+      - neo4j_auth
+    environment:
+      - NEO4J_AUTH_FILE=/run/secrets/neo4j_auth
+      - NEO4J_PLUGINS=["apoc"]
+    networks:
+      - testapp-network
+    healthcheck:
+      test: ["CMD", "neo4j", "status"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - neo4j_data:/data
+
+volumes:
+  caddy_data:
+  caddy_config:
+  neo4j_data:
+
+secrets:
+  neo4j_auth:
+    environment: "NEO4J_AUTH"
+  neo4j_username:
+    environment: "NEO4J_USERNAME"
+  neo4j_password:
+    environment: "NEO4J_PASSWORD"
+
+networks:
+  testapp-network:

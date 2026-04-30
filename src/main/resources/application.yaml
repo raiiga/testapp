@@ -1,0 +1,15 @@
+spring:
+  config:
+    import: "optional:configtree:/run/secrets/"
+  application:
+    name: testapp
+  neo4j:
+    uri: bolt://testapp-db:7687/neo4j
+    authentication:
+      username: ${neo4j_username}
+      password: ${neo4j_password}
+  data:
+    web:
+      pageable:
+        default-page-size: 50
+        max-page-size: 500
