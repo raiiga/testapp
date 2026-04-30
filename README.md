@@ -33,10 +33,12 @@
 git clone https://github.com/raiiga/testapp
 
 # 2. Navigate to the project directory
-cd testapp
+cd testapp/docker
 
-# 3. All configuration files are located in deployments folder
-cd docker
+# 3. Apply env variables, manualy or via .env file
+export NEO4J_AUTH=...
+export NEO4J_USERNAME=...
+export NEO4J_PASSWORD=...
 
 # 4. Launch the services using Docker Compose
 docker compose up -d
